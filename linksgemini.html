@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>P&S Company Assistant</title>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#f8f3f0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  padding:20px;
+}
+
+#cw{
+  width:100%;
+  max-width:480px;
+  height:720px;
+  background:white;
+  border-radius:20px;
+  border:1px solid #e7ddd7;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+#ch{
+  padding:18px;
+  border-bottom:1px solid #eee;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.hav{
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  background:#f1c1af;
+  color:#9d3d1d;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:18px;
+  flex-shrink:0;
+}
+
+.hi p{
+  font-size:18px;
+  font-weight:700;
+  color:#111;
+}
+
+.hi span{
+  color:#7d7d7d;
+  font-size:14px;
+}
+
+.hdot{
+  margin-left:auto;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#49b34d;
+}
+
+#msgs{
+  flex:1;
+  overflow-y:auto;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.msg{
+  display:flex;
+  max-width:90%;
+}
+
+.msg.u{
+  align-self:flex-end;
+}
+
+.msg.b{
+  align-self:flex-start;
+}
+
+.bubble{
+  padding:14px 16px;
+  border-radius:18px;
+  font-size:15px;
+  line-height:1.6;
+}
+
+.msg.b .bubble{
+  background:#f7f2ef;
+  border:1px solid #ece0da;
+  color:#1d1d1d;
+  border-radius:6px 18px 18px 18px;
+}
+
+.msg.u .bubble{
+  background:#d85a30;
+  color:white;
+  border-radius:18px 18px 6px 18px;
+}
+
+.bubble ul{
+  margin-top:12px;
+  padding-left:20px;
+}
+
+.bubble li{
+  margin-bottom:12px;
+}
+
+.bubble a{
+  color:#9d3d1d;
+  font-weight:700;
+  text-decoration:none;
+  border-bottom:1px solid #dca08f;
+}
+
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:14px;
+}
+
+.chip{
+  border:1px solid #e0cdc4;
+  padding:8px 14px;
+  border-radius:999px;
+  font-size:14px;
+  color:#9d3d1d;
+  background:white;
+}
+
+#ir{
+  padding:14px;
+  border-top:1px solid #eee;
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+}
+
+#ui{
+  flex:1;
+  border:1px solid #d9c7bf;
+  border-radius:16px;
+  padding:14px;
+  font-size:15px;
+  resize:none;
+  outline:none;
+  min-height:56px;
+  max-height:120px;
+  font-family:inherit;
+}
+
+#ui:focus{
+  border-color:#d85a30;
+}
+
+#sb{
+  width:56px;
+  height:56px;
+  border:none;
+  border-radius:50%;
+  background:#d85a30;
+  color:white;
+  cursor:pointer;
+  font-size:22px;
+  flex-shrink:0;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="cw">
+
+  <div id="ch">
+
+    <div class="hav">P&S</div>
+
+    <div class="hi">
+      <p>P&S Company Assistant</p>
+      <span>Kids ethnic wear · Always here to help</span>
+    </div>
+
+    <div class="hdot"></div>
+
+  </div>
+
+  <div id="msgs"></div>
+
+  <div id="ir">
+
+    <textarea
+      id="ui"
+      placeholder="Ask about products..."
+    ></textarea>
+
+    <button id="sb">➤</button>
+
+  </div>
+
+</div>
+
+<script>
+
+/*
+========================================================
+YOUR GEMINI API KEY
+========================================================
+*/
+
+const KEY = "AIzaSyAjhI6xr_HIjs6GcpfFfV5gLNtNAtfLjN8";
+
+
+
+/*
+========================================================
+FULL PRODUCTS DATASET
+========================================================
+PASTE YOUR ENTIRE const PRODUCTS=[...]
+HERE FROM THE TXT FILE
+========================================================
+*/
+
+const PRODUCTS = [{"n": "Abhla Work Multi Color Threadwork Kurta Pyjama", "u": "https://pandscompany.com/products/abhla-work-multi-color-threadwork-kurta-pyjama", "s": "abhla-work-multi-color-threadwork-kurta-pyjama"}, {"n": "Adorable Printed Top With Fringed Detailing And Lehenga", "u": "https://pandscompany.com/products/adorable-printed-top-with-fringed-detailing-and-lehenga-1", "s": "adorable-printed-top-with-fringed-detailing-and-lehenga-1"}, {"n": "Adorable Printed Top With Fringed Detailing And Lehenga", "u": "https://pandscompany.com/products/adorable-printed-top-with-fringed-detailing-and-lehenga-2", "s": "adorable-printed-top-with-fringed-detailing-and-lehenga-2"}, {"n": "Applique Brocade Ghaghra And Blouse", "u": "https://pandscompany.com/products/applique-brocade-ghaghra-and-blouse", "s": "applique-brocade-ghaghra-and-blouse"}, {"n": "Bandhani Printed Angarkha Style Kurta With Dhoti", "u": "https://pandscompany.com/products/bandhani-printed-angarkha-style-kurta-with-dhoti", "s": "bandhani-printed-angarkha-style-kurta-with-dhoti"}, {"n": "Bandhani Printed Frilly Layered Top With Lehenga", "u": "https://pandscompany.com/products/bandhani-printed-frilly-layered-top-with-lehenga", "s": "bandhani-printed-frilly-layered-top-with-lehenga"}, {"n": "Bandhani Printed Kurta Pyjama", "u": "https://pandscompany.com/products/bandhani-printed-kurta-pyjama", "s": "bandhani-printed-kurta-pyjama"}, {"n": "Bandhani Printed Kurta With Sharara", "u": "https://pandscompany.com/products/bandhani-printed-kurta-with-sharara", "s": "bandhani-printed-kurta-with-sharara"}, {"n": "Bandhani Printed Purple Balloon Sleeve Blouse With Ghaghra", "u": "https://pandscompany.com/products/bandhani-printed-purple-balloon-sleeve-blouse-with-ghaghra", "s": "bandhani-printed-purple-balloon-sleeve-blouse-with-ghaghra"}, {"n": "Beautiful Beaded Top With Zari Thread Work Lehenga And Dupatta", "u": "https://pandscompany.com/products/beautiful-beaded-top-with-zari-thread-work-lehenga-and-dupatta", "s": "beautiful-beaded-top-with-zari-thread-work-lehenga-and-dupatta"}, {"n": "Beautiful Floral Spring Print Kurta Pyjama", "u": "https://pandscompany.com/products/beautiful-floral-spring-print-kurta-pyjama", "s": "beautiful-floral-spring-print-kurta-pyjama"}, {"n": "Beautiful Flower Print Kurta Pyjama", "u": "https://pandscompany.com/products/beautiful-flower-print-kurta-pyjama", "s": "beautiful-flower-print-kurta-pyjama"}, {"n": "Beautiful Flower Printed Peplum And Sharara", "u": "https://pandscompany.com/products/beautiful-flower-printed-peplum-and-sharara", "s": "beautiful-flower-printed-peplum-and-sharara"}, {"n": "Beautiful Fuchia Pink Beads Embroidered Ghagara Blouse", "u": "https://pandscompany.com/products/beautiful-fuchia-pink-beads-embroidered-ghagara-blouse-1", "s": "beautiful-fuchia-pink-beads-embroidered-ghagara-blouse-1"}, {"n": "Beautiful Sea Green Beads Embroidered Ghagara Blouse", "u": "https://pandscompany.com/products/beautiful-sea-green-beads-embroidered-ghagara-blouse-1", "s": "beautiful-sea-green-beads-embroidered-ghagara-blouse-1"}, {"n": "Beige Floral Kurta Pyjama", "u": "https://pandscompany.com/products/beige-floral-kurta-pyjama", "s": "beige-floral-kurta-pyjama"}, {"n": "Beige Floral Printed Ghagara Blouse", "u": "https://pandscompany.com/products/beige-floral-printed-ghagara-blouse", "s": "beige-floral-printed-ghagara-blouse"}, {"n": "Bird Angrakha Kurta Dhoti", "u": "https://pandscompany.com/products/bird-angrakha-kurta-dhoti", "s": "bird-angrakha-kurta-dhoti"}, {"n": "Bird Embroidered Red Chanderi Kurta And Pant", "u": "https://pandscompany.com/products/bird-embroidered-red-chanderi-kurta-and-pant", "s": "bird-embroidered-red-chanderi-kurta-and-pant"}, {"n": "Bird Embroidered Red Kurta And Pant", "u": "https://pandscompany.com/products/bird-embroidered-red-kurta-and-pant", "s": "bird-embroidered-red-kurta-and-pant"}, {"n": "Black Cross Stitch Side Botton Kurta And And Pyjama", "u": "https://pandscompany.com/products/black-cross-stitch-side-botton-kurta-and-and-pyjama", "s": "black-cross-stitch-side-botton-kurta-and-and-pyjama"}, {"n": "Black Crosstitch Top And Flare Pant", "u": "https://pandscompany.com/products/black-crosstitch-top-and-flare-pant-1", "s": "black-crosstitch-top-and-flare-pant-1"}, {"n": "Black Intricate Zari Thread Embroidered Kurta And Pyjama", "u": "https://pandscompany.com/products/black-intricate-zari-thread-embroidered-kurta-and-pyjama", "s": "black-intricate-zari-thread-embroidered-kurta-and-pyjama"}, {"n": "Black Intricate Zari Thread Embroidered Kurta And Pyjama", "u": "https://pandscompany.com/products/black-intricate-zari-thread-embroidered-kurta-and-pyjama-1", "s": "black-intricate-zari-thread-embroidered-kurta-and-pyjama-1"}, {"n": "Black Intricate Zari Thread Embroidered Top And Kali Lehenga", "u": "https://pandscompany.com/products/black-intricate-zari-thread-embroidered-top-and-kali-lehenga", "s": "black-intricate-zari-thread-embroidered-top-and-kali-lehenga"}, {"n": "Black Jumpsuit With Multi Colour Floral Cross Stitched Black Jacket", "u": "https://pandscompany.com/products/black-jumpsuit-with-multi-colour-floral-cross-stitched-black-jacket", "s": "black-jumpsuit-with-multi-colour-floral-cross-stitched-black-jacket"}, {"n": "Black Linen Pathani Kurta And Patiala", "u": "https://pandscompany.com/products/black-linen-pathani-kurta-and-patiala-1", "s": "black-linen-pathani-kurta-and-patiala-1"}, {"n": "Black Linen Printed Kurta And Pant", "u": "https://pandscompany.com/products/black-linen-printed-kurta-and-pant-1", "s": "black-linen-printed-kurta-and-pant-1"}, {"n": "Black Thread Embroidered Kurta And Brocade Pant", "u": "https://pandscompany.com/products/black-thread-embroidered-kurta-and-brocade-pant", "s": "black-thread-embroidered-kurta-and-brocade-pant"}, {"n": "Black Thread Embroidered Nehru Jacket Set", "u": "https://pandscompany.com/products/black-thread-embroidered-nehru-jacket-set", "s": "black-thread-embroidered-nehru-jacket-set"}, {"n": "Blue And Green Shiboree Kurta And Pajama", "u": "https://pandscompany.com/products/blue-and-green-shiboree-kurta-and-pajama", "s": "blue-and-green-shiboree-kurta-and-pajama"}, {"n": "Blue And Green Shiboree Top And Ghagara", "u": "https://pandscompany.com/products/blue-and-green-shiboree-top-and-ghagara", "s": "blue-and-green-shiboree-top-and-ghagara"}, {"n": "Blue And White Thread Work Leheriya Kurta And Pant", "u": "https://pandscompany.com/products/blue-and-white-thread-work-leheriya-kurta-and-pant", "s": "blue-and-white-thread-work-leheriya-kurta-and-pant"}, {"n": "Blue Bandhej Pathani With Patiala", "u": "https://pandscompany.com/products/blue-bandhej-pathani-with-patiala", "s": "blue-bandhej-pathani-with-patiala"}, {"n": "Blue Brocade Gota Embroidered Top Flare Pant", "u": "https://pandscompany.com/products/blue-brocade-gota-embroidered-top-flare-pant", "s": "blue-brocade-gota-embroidered-top-flare-pant"}, {"n": "Blue Heart Embroidered Flap Kurta And Pyjama", "u": "https://pandscompany.com/products/blue-heart-embroidered-flap-kurta-and-pyjama", "s": "blue-heart-embroidered-flap-kurta-and-pyjama"}, {"n": "Blue Heart Jacket Kurta With Pants", "u": "https://pandscompany.com/products/blue-heart-jacket-kurta-with-pants", "s": "blue-heart-jacket-kurta-with-pants"}, {"n": "Blue Ikkat Printed Kurta And Dhoti", "u": "https://pandscompany.com/products/blue-ikkat-printed-kurta-and-dhoti", "s": "blue-ikkat-printed-kurta-and-dhoti"}, {"n": "Blue Ikkat Printed Kurta And Dhoti", "u": "https://pandscompany.com/products/blue-ikkat-printed-kurta-and-dhoti-1", "s": "blue-ikkat-printed-kurta-and-dhoti-1"}, {"n": "Blue Ikkat Printed Peplum And Flare Pant", "u": "https://pandscompany.com/products/blue-ikkat-printed-peplum-and-flare-pant", "s": "blue-ikkat-printed-peplum-and-flare-pant"}, {"n": "Blue Kurta And Pyjama", "u": "https://pandscompany.com/products/blue-kurta-and-pyjama", "s": "blue-kurta-and-pyjama"}, {"n": "Blue Linen Tissue Kurta Withy Straight Pant", "u": "https://pandscompany.com/products/blue-linen-tissue-kurta-withy-straight-pant", "s": "blue-linen-tissue-kurta-withy-straight-pant"}, {"n": "Blue Lotus Embroidered Top With Ghagra", "u": "https://pandscompany.com/products/blue-lotus-embroidered-top-with-ghagra", "s": "blue-lotus-embroidered-top-with-ghagra"}, {"n": "Blue Pintuck Detailed Chanderi Kurta And Pyjama", "u": "https://pandscompany.com/products/blue-pintuck-detailed-chanderi-kurta-and-pyjama", "s": "blue-pintuck-detailed-chanderi-kurta-and-pyjama"}, {"n": "Blue Sequins Embroidered Top With Jacket And Ghaghra", "u": "https://pandscompany.com/products/blue-sequins-embroidered-top-with-jacket-and-ghaghra", "s": "blue-sequins-embroidered-top-with-jacket-and-ghaghra"}, {"n": "Blue Thread Work Sherwani Set", "u": "https://pandscompany.com/products/blue-thread-work-sherwani-set-1", "s": "blue-thread-work-sherwani-set-1"}, {"n": "Blue Zari Embroidered Bandhej Kurta And Gota Line Flare Pant", "u": "https://pandscompany.com/products/blue-zari-embroidered-bandhej-kurta-and-gota-line-flare-pant", "s": "blue-zari-embroidered-bandhej-kurta-and-gota-line-flare-pant"}, {"n": "Butterfly Print Kurta With Dhoti Pant", "u": "https://pandscompany.com/products/butterfly-print-kurta-with-dhoti-pant", "s": "butterfly-print-kurta-with-dhoti-pant"}, {"n": "Butterfly Printed Halter Neck Top And Ghagara With Dupatta", "u": "https://pandscompany.com/products/butterfly-printed-halter-neck-top-and-ghagara-with-dupatta", "s": "butterfly-printed-halter-neck-top-and-ghagara-with-dupatta"}, {"n": "Cactus Embroidered With Peplum With Orange Tie And Dye Flare Pant", "u": "https://pandscompany.com/products/cactus-embroidered-with-peplum-with-orange-tie-and-dye-flare-pant", "s": "cactus-embroidered-with-peplum-with-orange-tie-and-dye-flare-pant"}, {"n": "Candy Pink And Yellow Shiboree Top With Cut Dana Work And Ghaghra", "u": "https://pandscompany.com/products/candy-pink-and-yellow-shiboree-top-with-cut-dana-work-and-ghaghra", "s": "candy-pink-and-yellow-shiboree-top-with-cut-dana-work-and-ghaghra"}, {"n": "Candy Pink And Yellow Shiboree Top With Cut Dana Work And Ghaghra", "u": "https://pandscompany.com/products/candy-pink-and-yellow-shiboree-top-with-cut-dana-work-and-ghaghra-1", "s": "candy-pink-and-yellow-shiboree-top-with-cut-dana-work-and-ghaghra-1"}, {"n": "Candy Pink Chanderi Spades Top And Flare Pant", "u": "https://pandscompany.com/products/candy-pink-chanderi-spades-top-and-flare-pant", "s": "candy-pink-chanderi-spades-top-and-flare-pant"}, {"n": "Colourful Thread Embroidered Top And Palazzo", "u": "https://pandscompany.com/products/colourful-thread-embroidered-top-and-palazzo", "s": "colourful-thread-embroidered-top-and-palazzo"}, {"n": "Contrasting Pocket Square Black Sherwani And Pyjama", "u": "https://pandscompany.com/products/contrasting-pocket-square-black-sherwani-and-pyjama", "s": "contrasting-pocket-square-black-sherwani-and-pyjama"}, {"n": "Contrasting Pocket Square Black Sherwani And Pyjama", "u": "https://pandscompany.com/products/contrasting-pocket-square-black-sherwani-and-pyjama-1", "s": "contrasting-pocket-square-black-sherwani-and-pyjama-1"}, {"n": "Cord And Mirror Embroidered Pink Top And Flare Pant", "u": "https://pandscompany.com/products/cord-and-mirror-embroidered-pink-top-and-flare-pant", "s": "cord-and-mirror-embroidered-pink-top-and-flare-pant"}, {"n": "Cord Dori Embroidered Jacket Kurta Pajama", "u": "https://pandscompany.com/products/cord-dori-embroidered-jacket-kurta-pajama", "s": "cord-dori-embroidered-jacket-kurta-pajama"}, {"n": "Cow Embroidered Jamna Set", "u": "https://pandscompany.com/products/cow-embroidered-jamna-set", "s": "cow-embroidered-jamna-set"}, {"n": "Cow Printed Ghagara", "u": "https://pandscompany.com/products/cow-printed-ghagara", "s": "cow-printed-ghagara"}, {"n": "Dapper Looking Stylish Navy Blue Kurta And Pants", "u": "https://pandscompany.com/products/dapper-looking-stylish-navy-blue-kurta-and-pants", "s": "dapper-looking-stylish-navy-blue-kurta-and-pants"}, {"n": "Delicate Cut Dana Embroidered Off White Net Dress", "u": "https://pandscompany.com/products/delicate-cut-dana-embroidered-off-white-net-dress-1", "s": "delicate-cut-dana-embroidered-off-white-net-dress-1"}, {"n": "Delicate Cutdana Embroidered Lavender Net Dress", "u": "https://pandscompany.com/products/delicate-cutdana-embroidered-lavender-net-dress", "s": "delicate-cutdana-embroidered-lavender-net-dress"}, {"n": "Dust Pink Brocade Kurta Sharara", "u": "https://pandscompany.com/products/dust-pink-brocade-kurta-sharara", "s": "dust-pink-brocade-kurta-sharara"}, {"n": "Dust Pink Chanderi Floral Embroidered Jacket With Mint Kurta And Pant", "u": "https://pandscompany.com/products/dust-pink-chanderi-floral-embroidered-jacket-with-mint-kurta-and-pant", "s": "dust-pink-chanderi-floral-embroidered-jacket-with-mint-kurta-and-pant"}, {"n": "Dust Pink Chanderi Printed Gota Lace Embroidered Kurta And Pant", "u": "https://pandscompany.com/products/dust-pink-chanderi-printed-gota-lace-embroidered-kurta-and-pant", "s": "dust-pink-chanderi-printed-gota-lace-embroidered-kurta-and-pant"}, {"n": "Dust Pink Chanderi Printed Gota Lace Embroidered Kurta And Pant", "u": "https://pandscompany.com/products/dust-pink-chanderi-printed-gota-lace-embroidered-kurta-and-pant-1", "s": "dust-pink-chanderi-printed-gota-lace-embroidered-kurta-and-pant-1"}, {"n": "Dust Pink Chanderi Printed Gota Lace Embroidered Kurta And Pant", "u": "https://pandscompany.com/products/dust-pink-chanderi-printed-gota-lace-embroidered-kurta-and-pant-2", "s": "dust-pink-chanderi-printed-gota-lace-embroidered-kurta-and-pant-2"}, {"n": "Dust Pink Lakhnavi Kurta And Pant", "u": "https://pandscompany.com/products/dust-pink-lakhnavi-kurta-and-pant-1", "s": "dust-pink-lakhnavi-kurta-and-pant-1"}, {"n": "Dust Pink Mirror Work Kurta With Patiala", "u": "https://pandscompany.com/products/dust-pink-mirror-work-kurta-with-patiala", "s": "dust-pink-mirror-work-kurta-with-patiala"}, {"n": "Dust Pink Printed Chanderi Gota Lace Kurta And Pant", "u": "https://pandscompany.com/products/dust-pink-printed-chanderi-gota-lace-kurta-and-pant", "s": "dust-pink-printed-chanderi-gota-lace-kurta-and-pant"}, {"n": "Dust Pink Thread Floral Embroidered Jacket And Mint Peplum With Dhoti", "u": "https://pandscompany.com/products/dust-pink-thread-floral-embroidered-jacket-and-mint-peplum-with-dhoti", "s": "dust-pink-thread-floral-embroidered-jacket-and-mint-peplum-with-dhoti"}, {"n": "Elegant Blue Front Open Asymmetric Sherwani And Pyjama", "u": "https://pandscompany.com/products/elegant-blue-front-open-asymmetric-sherwani-and-pyjama", "s": "elegant-blue-front-open-asymmetric-sherwani-and-pyjama"}, {"n": "Elegant Front Open Embroidered Asymetric Blue Sherwani And Pyjama", "u": "https://pandscompany.com/products/elegant-front-open-embroidered-asymetric-blue-sherwani-and-pyjama-1", "s": "elegant-front-open-embroidered-asymetric-blue-sherwani-and-pyjama-1"}, {"n": "Elegant Front Open Embroidered Asymetrical Pink Sherwani And Pyjama", "u": "https://pandscompany.com/products/elegant-front-open-embroidered-asymetrical-pink-sherwani-and-pyjama-1", "s": "elegant-front-open-embroidered-asymetrical-pink-sherwani-and-pyjama-1"}, {"n": "Elegant Front Open Sherwani With Pyjama", "u": "https://pandscompany.com/products/elegant-front-open-sherwani-with-pyjama", "s": "elegant-front-open-sherwani-with-pyjama"}, {"n": "Elegant Purple Front Open Asymmetric Sherwani And Pyjama", "u": "https://pandscompany.com/products/elegant-purple-front-open-asymmetric-sherwani-and-pyjama-1", "s": "elegant-purple-front-open-asymmetric-sherwani-and-pyjama-1"}, {"n": "Ethnic Kurta With Thread Embroidered Open Jacket And Patiala", "u": "https://pandscompany.com/products/ethnic-kurta-with-thread-embroidered-open-jacket-and-patiala", "s": "ethnic-kurta-with-thread-embroidered-open-jacket-and-patiala"}, {"n": "Extremely Elegant Mirror Work Ghagara Choli", "u": "https://pandscompany.com/products/extremely-elegant-mirror-work-ghagara-choli", "s": "extremely-elegant-mirror-work-ghagara-choli"}, {"n": "Faux Mirror And Floral Thread Embroidered Top And Lehenga With Net Dupatta", "u": "https://pandscompany.com/products/faux-mirror-and-floral-thread-embroidered-top-and-lehenga-with-net-dupatta", "s": "faux-mirror-and-floral-thread-embroidered-top-and-lehenga-with-net-dupatta"}, {"n": "Faux Mirror Work Zig Zag Design Top And Lehenga", "u": "https://pandscompany.com/products/faux-mirror-work-zig-zag-design-top-and-lehenga", "s": "faux-mirror-work-zig-zag-design-top-and-lehenga"}, {"n": "Flamingo Beaded Mint Strapless Tissue Peplum And Flare Pant", "u": "https://pandscompany.com/products/flamingo-beaded-mint-strapless-tissue-peplum-and-flare-pant", "s": "flamingo-beaded-mint-strapless-tissue-peplum-and-flare-pant"}, {"n": "Flamingo Embroidered Mint Tissue Kurta And Pant Copy", "u": "https://pandscompany.com/products/flamingo-embroidered-mint-tissue-kurta-and-pant-copy", "s": "flamingo-embroidered-mint-tissue-kurta-and-pant-copy"}, {"n": "Floral Embroidery Flap Kurta With Pyjama", "u": "https://pandscompany.com/products/floral-embroidery-flap-kurta-with-pyjama", "s": "floral-embroidery-flap-kurta-with-pyjama"}, {"n": "Floral Printed Alternative Colour Kali Ghaghra And Gota Detailed Blouse", "u": "https://pandscompany.com/products/floral-printed-alternative-colour-kali-ghaghra-and-gota-detailed-blouse", "s": "floral-printed-alternative-colour-kali-ghaghra-and-gota-detailed-blouse"}, {"n": "Floral Printed Alternative Colour Kali Ghaghra And Gota Detailed Blouse", "u": "https://pandscompany.com/products/floral-printed-alternative-colour-kali-ghaghra-and-gota-detailed-blouse-1", "s": "floral-printed-alternative-colour-kali-ghaghra-and-gota-detailed-blouse-1"}, {"n": "Floral Printed Anchored Nehru Jacket With Kurta And Pant", "u": "https://pandscompany.com/products/floral-printed-anchored-nehru-jacket-with-kurta-and-pant", "s": "floral-printed-anchored-nehru-jacket-with-kurta-and-pant"}, {"n": "Floral Printed Frilly Layered Top With Pleated Lehenga", "u": "https://pandscompany.com/products/floral-printed-frilly-layered-top-with-pleated-lehenga", "s": "floral-printed-frilly-layered-top-with-pleated-lehenga"}, {"n": "Floral Printed Green Top And Ghagara", "u": "https://pandscompany.com/products/floral-printed-green-top-and-ghagara", "s": "floral-printed-green-top-and-ghagara"}, {"n": "Floral Printed Heavy Lacchi Blouse And Ghagara", "u": "https://pandscompany.com/products/floral-printed-heavy-lacchi-blouse-and-ghagara", "s": "floral-printed-heavy-lacchi-blouse-and-ghagara"}, {"n": "Floral Printed Lace Detailed Ghaghra And Blouse", "u": "https://pandscompany.com/products/floral-printed-lace-detailed-ghaghra-and-blouse", "s": "floral-printed-lace-detailed-ghaghra-and-blouse"}, {"n": "Floral Printed Nehru Jacket Kurta Set", "u": "https://pandscompany.com/products/floral-printed-nehru-jacket-kurta-set", "s": "floral-printed-nehru-jacket-kurta-set"}, {"n": "Floral Printed Pink Nehru Jacket Set", "u": "https://pandscompany.com/products/floral-printed-pink-nehru-jacket-set", "s": "floral-printed-pink-nehru-jacket-set"}, {"n": "Floral Printed Purple Nehru Jacket Set", "u": "https://pandscompany.com/products/floral-printed-purple-nehru-jacket-set", "s": "floral-printed-purple-nehru-jacket-set"}, {"n": "Floral Thread Embroidered Fuchsia Pink Halter Neck Blouse With Ghagara", "u": "https://pandscompany.com/products/floral-thread-embroidered-fuchsia-pink-halter-neck-blouse-with-ghagara", "s": "floral-thread-embroidered-fuchsia-pink-halter-neck-blouse-with-ghagara"}, {"n": "Frilly Layered Top With Floral Work Lehenga", "u": "https://pandscompany.com/products/frilly-layered-top-with-floral-work-lehenga", "s": "frilly-layered-top-with-floral-work-lehenga"}, {"n": "Fringed Hem Pin Tuck Green Top And Printed Lehenga", "u": "https://pandscompany.com/products/fringed-hem-pin-tuck-green-top-and-printed-lehenga-1", "s": "fringed-hem-pin-tuck-green-top-and-printed-lehenga-1"}, {"n": "Fuchsia Pink Frilly Layered Top With Tropical Flair Pant", "u": "https://pandscompany.com/products/fuchsia-pink-frilly-layered-top-with-tropical-flair-pant", "s": "fuchsia-pink-frilly-layered-top-with-tropical-flair-pant"}, {"n": "Fuschia Pink And Yellow Hearts Embroidered Off White Chanderi Top And Ghagara", "u": "https://pandscompany.com/products/fuschia-pink-and-yellow-hearts-embroidered-off-white-chanderi-top-and-ghagara", "s": "fuschia-pink-and-yellow-hearts-embroidered-off-white-chanderi-top-and-ghagara"}, {"n": "Gokul Print Forest Style Top With Flare Pant", "u": "https://pandscompany.com/products/gokul-print-forest-style-top-with-flare-pant", "s": "gokul-print-forest-style-top-with-flare-pant"}, {"n": "Golden Tissue Gota Embroidered Ghagara Blouse", "u": "https://pandscompany.com/products/golden-tissue-gota-embroidered-ghagara-blouse", "s": "golden-tissue-gota-embroidered-ghagara-blouse"}, {"n": "Gota And Pearl Embroidered Lavender Kurta And Pant", "u": "https://pandscompany.com/products/gota-and-pearl-embroidered-lavender-kurta-and-pant", "s": "gota-and-pearl-embroidered-lavender-kurta-and-pant"}, {"n": "Gota Lace Dark Yellow Ghagra And Blouse", "u": "https://pandscompany.com/products/gota-lace-dark-yellow-ghagra-and-blouse", "s": "gota-lace-dark-yellow-ghagra-and-blouse"}, {"n": "Gota Lace Detailed Hot Pink Floral Printed Kurta And Sharara", "u": "https://pandscompany.com/products/gota-lace-detailed-hot-pink-floral-printed-kurta-and-sharara", "s": "gota-lace-detailed-hot-pink-floral-printed-kurta-and-sharara"}, {"n": "Gota Lace Detailed Purple Printed Kurta And Sharara", "u": "https://pandscompany.com/products/gota-lace-detailed-purple-printed-kurta-and-sharara", "s": "gota-lace-detailed-purple-printed-kurta-and-sharara"}, {"n": "Gota Lace Pastel Green Ghagra And Blouse", "u": "https://pandscompany.com/products/gota-lace-pastel-green-ghagra-and-blouse", "s": "gota-lace-pastel-green-ghagra-and-blouse"}, {"n": "Green Floral Printed Embroidered Blouse And Ghagara", "u": "https://pandscompany.com/products/green-floral-printed-embroidered-blouse-and-ghagara", "s": "green-floral-printed-embroidered-blouse-and-ghagara"}, {"n": "Green Floral Printed Kurta Pyjama", "u": "https://pandscompany.com/products/green-floral-printed-kurta-pyjama", "s": "green-floral-printed-kurta-pyjama"}, {"n": "Green Kurta And Pant", "u": "https://pandscompany.com/products/green-kurta-and-pant", "s": "green-kurta-and-pant"}, {"n": "Green Kurta And Pink Embroidered Jacket With Pyjama", "u": "https://pandscompany.com/products/green-kurta-and-pink-embroidered-jacket-with-pyjama", "s": "green-kurta-and-pink-embroidered-jacket-with-pyjama"}, {"n": "Green Kurta And Pink Embroidered Jacket With Pyjama", "u": "https://pandscompany.com/products/green-kurta-and-pink-embroidered-jacket-with-pyjama-1", "s": "green-kurta-and-pink-embroidered-jacket-with-pyjama-1"}, {"n": "Green Mirror Kurta And Sharara", "u": "https://pandscompany.com/products/green-mirror-kurta-and-sharara-1", "s": "green-mirror-kurta-and-sharara-1"}, {"n": "Green Patola Ghagara With Smocked Top", "u": "https://pandscompany.com/products/green-patola-ghagara-with-smocked-top", "s": "green-patola-ghagara-with-smocked-top"}, {"n": "Green Pintuck Yoke Kurta Set", "u": "https://pandscompany.com/products/green-pintuck-yoke-kurta-set", "s": "green-pintuck-yoke-kurta-set"}, {"n": "Green Rocket Embroidered Linen Kurta And Pant", "u": "https://pandscompany.com/products/green-rocket-embroidered-linen-kurta-and-pant-1", "s": "green-rocket-embroidered-linen-kurta-and-pant-1"}, {"n": "Green Rose Printed Jacket Kurta And Pants", "u": "https://pandscompany.com/products/green-rose-printed-jacket-kurta-and-pants", "s": "green-rose-printed-jacket-kurta-and-pants"}, {"n": "Green Velvet Zari Embroidered Kurta And Pant", "u": "https://pandscompany.com/products/green-velvet-zari-embroidered-kurta-and-pant", "s": "green-velvet-zari-embroidered-kurta-and-pant"}, {"n": "Grey Mirror Kurta And Pant", "u": "https://pandscompany.com/products/grey-mirror-kurta-and-pant", "s": "grey-mirror-kurta-and-pant"}, {"n": "Halter Neck Denim Top And Flare Pant", "u": "https://pandscompany.com/products/halter-neck-denim-top-and-flare-pant", "s": "halter-neck-denim-top-and-flare-pant"}, {"n": "Heart Embroidered Blue Side Botton Kurta And Pant", "u": "https://pandscompany.com/products/heart-embroidered-blue-side-botton-kurta-and-pant", "s": "heart-embroidered-blue-side-botton-kurta-and-pant"}, {"n": "Heart Embroidered White Side Botton Kurta And Pant", "u": "https://pandscompany.com/products/heart-embroidered-white-side-botton-kurta-and-pant", "s": "heart-embroidered-white-side-botton-kurta-and-pant"}, {"n": "Heavy Embroidered Royal Blue Ghagara And Blouse", "u": "https://pandscompany.com/products/heavy-embroidered-royal-blue-ghagara-and-blouse", "s": "heavy-embroidered-royal-blue-ghagara-and-blouse"}, {"n": "Hot Pink Brocade Kurta And Sharara", "u": "https://pandscompany.com/products/hot-pink-brocade-kurta-and-sharara", "s": "hot-pink-brocade-kurta-and-sharara"}, {"n": "Hot Pink Embroidered Blouse And Pista Green Bandhej Ghaghra", "u": "https://pandscompany.com/products/hot-pink-embroidered-blouse-and-pista-green-bandhej-ghaghra", "s": "hot-pink-embroidered-blouse-and-pista-green-bandhej-ghaghra"}, {"n": "Hot Pink Embroidered Velvet Jacket With Crop Top Flare Pant", "u": "https://pandscompany.com/products/hot-pink-embroidered-velvet-jacket-with-crop-top-flare-pant", "s": "hot-pink-embroidered-velvet-jacket-with-crop-top-flare-pant"}, {"n": "Hot Pink Fully Thread Embroidered Ghaghra Blouse With Dupatta", "u": "https://pandscompany.com/products/hot-pink-fully-thread-embroidered-ghaghra-blouse-with-dupatta-1", "s": "hot-pink-fully-thread-embroidered-ghaghra-blouse-with-dupatta-1"}, {"n": "Hot Pink Gota Embroidered Top With Orange Chanderi Gota Ghaghra", "u": "https://pandscompany.com/products/hot-pink-gota-embroidered-top-with-orange-chanderi-gota-ghaghra", "s": "hot-pink-gota-embroidered-top-with-orange-chanderi-gota-ghaghra"}, {"n": "Hot Pink Lotus Printed Boys Kurta And Pant", "u": "https://pandscompany.com/products/hot-pink-lotus-printed-boys-kurta-and-pant", "s": "hot-pink-lotus-printed-boys-kurta-and-pant"}, {"n": "Hot Pink Mirror Ghagara Blouse", "u": "https://pandscompany.com/products/hot-pink-mirror-ghagara-blouse", "s": "hot-pink-mirror-ghagara-blouse"}, {"n": "Ikkat Printed Kurta And And Patiala", "u": "https://pandscompany.com/products/ikkat-printed-kurta-and-and-patiala-1", "s": "ikkat-printed-kurta-and-and-patiala-1"}, {"n": "Intricate Zari Thread Embroidered Top And Beaded Scalloped Lehenga", "u": "https://pandscompany.com/products/intricate-zari-thread-embroidered-top-and-beaded-scalloped-lehenga", "s": "intricate-zari-thread-embroidered-top-and-beaded-scalloped-lehenga"}, {"n": "Intricate Zari Thread Embroidered Yellow Top And Beaded Scalloped Lehenga", "u": "https://pandscompany.com/products/intricate-zari-thread-embroidered-yellow-top-and-beaded-scalloped-lehenga", "s": "intricate-zari-thread-embroidered-yellow-top-and-beaded-scalloped-lehenga"}, {"n": "Keshariya Brocade Flap Kurta With Pyjama", "u": "https://pandscompany.com/products/keshariya-brocade-flap-kurta-with-pyjama", "s": "keshariya-brocade-flap-kurta-with-pyjama"}, {"n": "Keshariya Line Tissue Kurta With Dhoti", "u": "https://pandscompany.com/products/keshariya-line-tissue-kurta-with-dhoti", "s": "keshariya-line-tissue-kurta-with-dhoti"}, {"n": "Kilangi White Laachi Top And Flair Pant", "u": "https://pandscompany.com/products/kilangi-white-laachi-top-and-flair-pant", "s": "kilangi-white-laachi-top-and-flair-pant"}, {"n": "Krishna Embroidered Angrakha With Dhoti", "u": "https://pandscompany.com/products/krishna-embroidered-angrakha-with-dhoti", "s": "krishna-embroidered-angrakha-with-dhoti"}, {"n": "Kurta With Flower Embroidered Open Jacket With Pyjama", "u": "https://pandscompany.com/products/kurta-with-flower-embroidered-open-jacket-with-pyjama", "s": "kurta-with-flower-embroidered-open-jacket-with-pyjama"}, {"n": "Lavender Cow Printed Kurta And Flare Pant", "u": "https://pandscompany.com/products/lavender-cow-printed-kurta-and-flare-pant", "s": "lavender-cow-printed-kurta-and-flare-pant"}, {"n": "Lavender Cut Dana Worked Nehru Jacket Set", "u": "https://pandscompany.com/products/lavender-cut-dana-worked-nehru-jacket-set", "s": "lavender-cut-dana-worked-nehru-jacket-set"}, {"n": "Lavender Flamingo Beaded Strapless Tissue Peplum And Flare Pant", "u": "https://pandscompany.com/products/lavender-flamingo-beaded-strapless-tissue-peplum-and-flare-pant", "s": "lavender-flamingo-beaded-strapless-tissue-peplum-and-flare-pant"}, {"n": "Lavender Floral Printed Ghagara Blouse", "u": "https://pandscompany.com/products/lavender-floral-printed-ghagara-blouse", "s": "lavender-floral-printed-ghagara-blouse"}, {"n": "Lavender Gota And Thread Embroidered Kurta And Flare Pant", "u": "https://pandscompany.com/products/lavender-gota-and-thread-embroidered-kurta-and-flare-pant", "s": "lavender-gota-and-thread-embroidered-kurta-and-flare-pant"}, {"n": "Lavender Hearts Girls Set", "u": "https://pandscompany.com/products/lavender-hearts-girls-set", "s": "lavender-hearts-girls-set"}, {"n": "Lavender Hearts Nehru Jacket Set", "u": "https://pandscompany.com/products/lavender-hearts-nehru-jacket-set", "s": "lavender-hearts-nehru-jacket-set"}, {"n": "Lavender Linen Car Embroidered Shirt", "u": "https://pandscompany.com/products/lavender-linen-car-embroidered-shirt-1", "s": "lavender-linen-car-embroidered-shirt-1"}, {"n": "Lavender Mirror Kurta And Pajama", "u": "https://pandscompany.com/products/lavender-mirror-kurta-and-pajama-1", "s": "lavender-mirror-kurta-and-pajama-1"}, {"n": "Lavender Patola Ruffle Top And Ghagara", "u": "https://pandscompany.com/products/lavender-patola-ruffle-top-and-ghagara", "s": "lavender-patola-ruffle-top-and-ghagara"}, {"n": "Lavender Quilting Jacket Kurta Set", "u": "https://pandscompany.com/products/lavender-quilting-jacket-kurta-set", "s": "lavender-quilting-jacket-kurta-set"}, {"n": "Lavender Quilting Jacket Kurta Set", "u": "https://pandscompany.com/products/lavender-quilting-jacket-kurta-set-1", "s": "lavender-quilting-jacket-kurta-set-1"}, {"n": "Lavender Ruffle Top And Printed Ghagara", "u": "https://pandscompany.com/products/lavender-ruffle-top-and-printed-ghagara-1", "s": "lavender-ruffle-top-and-printed-ghagara-1"}, {"n": "Lavender Sequin Embellished Top With Flared Palazzo With Dupatta", "u": "https://pandscompany.com/products/lavender-sequin-embellished-top-with-flared-palazzo-with-dupatta", "s": "lavender-sequin-embellished-top-with-flared-palazzo-with-dupatta"}, {"n": "Lavender Thread And Zari Embroidered Kurta And Sharara", "u": "https://pandscompany.com/products/lavender-thread-and-zari-embroidered-kurta-and-sharara", "s": "lavender-thread-and-zari-embroidered-kurta-and-sharara"}, {"n": "Lavender Thread Sherwani", "u": "https://pandscompany.com/products/lavender-thread-sherwani", "s": "lavender-thread-sherwani"}, {"n": "Leaf Printed Nehru Jacket Set", "u": "https://pandscompany.com/products/leaf-printed-nehru-jacket-set", "s": "leaf-printed-nehru-jacket-set"}, {"n": "Lime Green Bandhani Kurta And Pyjama Set", "u": "https://pandscompany.com/products/lime-green-bandhani-kurta-and-pyjama-set", "s": "lime-green-bandhani-kurta-and-pyjama-set"}, {"n": "Lime Green Heart Ghagara And Blouse", "u": "https://pandscompany.com/products/lime-green-heart-ghagara-and-blouse", "s": "lime-green-heart-ghagara-and-blouse"}, {"n": "Lime Green Moti And Gota Embroidered Kurta Sharara", "u": "https://pandscompany.com/products/lime-green-moti-and-gota-embroidered-kurta-sharara", "s": "lime-green-moti-and-gota-embroidered-kurta-sharara"}, {"n": "Lime Green Navdha Sherwani Set", "u": "https://pandscompany.com/products/lime-green-navdha-sherwani-set", "s": "lime-green-navdha-sherwani-set"}, {"n": "Lime Green Patola Nehru Jacket Set", "u": "https://pandscompany.com/products/lime-green-patola-nehru-jacket-set", "s": "lime-green-patola-nehru-jacket-set"}, {"n": "Lime Green Patola Printed Ruffle Top And Ghaghra", "u": "https://pandscompany.com/products/lime-green-patola-printed-ruffle-top-and-ghaghra", "s": "lime-green-patola-printed-ruffle-top-and-ghaghra"}, {"n": "Lime Green Patola Printed Ruffle Top And Ghaghra", "u": "https://pandscompany.com/products/lime-green-patola-printed-ruffle-top-and-ghaghra-1", "s": "lime-green-patola-printed-ruffle-top-and-ghaghra-1"}, {"n": "Lime Green Savron Sherwani Set", "u": "https://pandscompany.com/products/lime-green-savron-sherwani-set-1", "s": "lime-green-savron-sherwani-set-1"}, {"n": "Lime Green Shiboree Mirror Leaf Embroidered Kurta And Pant", "u": "https://pandscompany.com/products/lime-green-shiboree-mirror-leaf-embroidered-kurta-and-pant", "s": "lime-green-shiboree-mirror-leaf-embroidered-kurta-and-pant"}, {"n": "Lime Green Zari And Moti Embroidered Kurta And Flare Pant", "u": "https://pandscompany.com/products/lime-green-zari-and-moti-embroidered-kurta-and-flare-pant", "s": "lime-green-zari-and-moti-embroidered-kurta-and-flare-pant"}, {"n": "Lime Green Zari Embroidered Waistcoat Style Top And Sea Green Ghaghra With Dupatta", "u": "https://pandscompany.com/products/lime-green-zari-embroidered-waistcoat-style-top-and-sea-green-ghaghra-with-dupatta-1", "s": "lime-green-zari-embroidered-waistcoat-style-top-and-sea-green-ghaghra-with-dupatta-1"}, {"n": "Lotus Brocade Embroidered Flared Kurti And Pant", "u": "https://pandscompany.com/products/lotus-brocade-embroidered-flared-kurti-and-pant", "s": "lotus-brocade-embroidered-flared-kurti-and-pant"}, {"n": "Lotus Floral Printed Open Jacket Set", "u": "https://pandscompany.com/products/lotus-floral-printed-open-jacket-set-1", "s": "lotus-floral-printed-open-jacket-set-1"}, {"n": "Magenda Navdha Nehru Jacket Set", "u": "https://pandscompany.com/products/magenda-navdha-nehru-jacket-set", "s": "magenda-navdha-nehru-jacket-set"}, {"n": "Mint Applique Kurta And Pant", "u": "https://pandscompany.com/products/mint-applique-kurta-and-pant", "s": "mint-applique-kurta-and-pant"}, {"n": "Mint Butterfly Flower Printed Gota Peplum And Sharara", "u": "https://pandscompany.com/products/mint-butterfly-flower-printed-gota-peplum-and-sharara", "s": "mint-butterfly-flower-printed-gota-peplum-and-sharara"}, {"n": "Mint Chanderi Floral Printed Kurta And Pant", "u": "https://pandscompany.com/products/mint-chanderi-floral-printed-kurta-and-pant-1", "s": "mint-chanderi-floral-printed-kurta-and-pant-1"}, {"n": "Mint Chanderi Thread Worked Kurta With Pyjama", "u": "https://pandscompany.com/products/mint-chanderi-thread-worked-kurta-with-pyjama-1", "s": "mint-chanderi-thread-worked-kurta-with-pyjama-1"}, {"n": "Mint Floral Chanderi Kurta Sharara", "u": "https://pandscompany.com/products/mint-floral-chanderi-kurta-sharara", "s": "mint-floral-chanderi-kurta-sharara"}, {"n": "Mint Floral Printed Gota Lace Detailed Kurta And Pyjama", "u": "https://pandscompany.com/products/mint-floral-printed-gota-lace-detailed-kurta-and-pyjama", "s": "mint-floral-printed-gota-lace-detailed-kurta-and-pyjama"}, {"n": "Mint Floral Printed Gota Lace Detailed Peplum And Pant", "u": "https://pandscompany.com/products/mint-floral-printed-gota-lace-detailed-peplum-and-pant", "s": "mint-floral-printed-gota-lace-detailed-peplum-and-pant"}, {"n": "Mint Floral Printed Kurta Pyjama", "u": "https://pandscompany.com/products/mint-floral-printed-kurta-pyjama", "s": "mint-floral-printed-kurta-pyjama"}, {"n": "Mint Green Thread And Lace Embalished Blouse And Ghaghra", "u": "https://pandscompany.com/products/mint-green-thread-and-lace-embalished-blouse-and-ghaghra", "s": "mint-green-thread-and-lace-embalished-blouse-and-ghaghra"}, {"n": "Mint Heart Ghagara Blouse", "u": "https://pandscompany.com/products/mint-heart-ghagara-blouse", "s": "mint-heart-ghagara-blouse"}, {"n": "Mint Lakhnavi Top And Flare Pant", "u": "https://pandscompany.com/products/mint-lakhnavi-top-and-flare-pant-1", "s": "mint-lakhnavi-top-and-flare-pant-1"}, {"n": "Mint Mirror Kurta Sharara", "u": "https://pandscompany.com/products/mint-mirror-kurta-sharara", "s": "mint-mirror-kurta-sharara"}, {"n": "Mint Princess Dress", "u": "https://pandscompany.com/products/mint-princess-dress-1", "s": "mint-princess-dress-1"}, {"n": "Mint Printed Cowl Kurta Pyjama", "u": "https://pandscompany.com/products/mint-printed-cowl-kurta-pyjama", "s": "mint-printed-cowl-kurta-pyjama"}, {"n": "Mint Printed Cowl Kurta Pyjama", "u": "https://pandscompany.com/products/mint-printed-cowl-kurta-pyjama-1", "s": "mint-printed-cowl-kurta-pyjama-1"}, {"n": "Mint Sequins Sherwani Sets", "u": "https://pandscompany.com/products/mint-sequins-sherwani-sets", "s": "mint-sequins-sherwani-sets"}, {"n": "Mint Sequins Sherwani Sets", "u": "https://pandscompany.com/products/mint-sequins-sherwani-sets-1", "s": "mint-sequins-sherwani-sets-1"}, {"n": "Mint Smock Top With Mint Tiger Printed Flare Pant", "u": "https://pandscompany.com/products/mint-smock-top-with-mint-tiger-printed-flare-pant", "s": "mint-smock-top-with-mint-tiger-printed-flare-pant"}, {"n": "Mint Tiger Print Kurta And Patiala", "u": "https://pandscompany.com/products/mint-tiger-print-kurta-and-patiala", "s": "mint-tiger-print-kurta-and-patiala"}, {"n": "Mint Tread Siquence Embroidered Peplum Sharara", "u": "https://pandscompany.com/products/mint-tread-siquence-embroidered-peplum-sharara", "s": "mint-tread-siquence-embroidered-peplum-sharara"}, {"n": "Mirror And Thread Embroidered Denim Top And Flare Pant", "u": "https://pandscompany.com/products/mirror-and-thread-embroidered-denim-top-and-flare-pant", "s": "mirror-and-thread-embroidered-denim-top-and-flare-pant"}, {"n": "Mirror And Thread Embroidered Denim Top And Flare Pant", "u": "https://pandscompany.com/products/mirror-and-thread-embroidered-denim-top-and-flare-pant-1", "s": "mirror-and-thread-embroidered-denim-top-and-flare-pant-1"}, {"n": "Mirror Work Kurta Pyjama", "u": "https://pandscompany.com/products/mirror-work-kurta-pyjama", "s": "mirror-work-kurta-pyjama"}, {"n": "Mirror Work Shiboree Top And Flare Pant And Dupatta", "u": "https://pandscompany.com/products/mirror-work-shiboree-top-and-flare-pant-and-dupatta", "s": "mirror-work-shiboree-top-and-flare-pant-and-dupatta"}, {"n": "Mirror Worked Shiboree Top And Flare Pant With Dupatta", "u": "https://pandscompany.com/products/mirror-worked-shiboree-top-and-flare-pant-with-dupatta", "s": "mirror-worked-shiboree-top-and-flare-pant-with-dupatta"}, {"n": "Multi Colour Chir Embroidered Off White Top And Flare Pant", "u": "https://pandscompany.com/products/multi-colour-chir-embroidered-off-white-top-and-flare-pant", "s": "multi-colour-chir-embroidered-off-white-top-and-flare-pant"}, {"n": "Multi Colour Floral Embroidered Jacket With Cotton Kurta And Pyjama", "u": "https://pandscompany.com/products/multi-colour-floral-embroidered-jacket-with-cotton-kurta-and-pyjama", "s": "multi-colour-floral-embroidered-jacket-with-cotton-kurta-and-pyjama"}, {"n": "Multi Colour Floral Thread Work Jacket With Red Kurta And Pyjama", "u": "https://pandscompany.com/products/multi-colour-floral-thread-work-jacket-with-red-kurta-and-pyjama-1", "s": "multi-colour-floral-thread-work-jacket-with-red-kurta-and-pyjama-1"}, {"n": "Multicolour Cut Dana Worked Off White Kurta And Pant", "u": "https://pandscompany.com/products/multicolour-cut-dana-worked-off-white-kurta-and-pant", "s": "multicolour-cut-dana-worked-off-white-kurta-and-pant"}, {"n": "Multicolour Flower Embroidered Pista Green Top And Flare Pant", "u": "https://pandscompany.com/products/multicolour-flower-embroidered-pista-green-top-and-flare-pant", "s": "multicolour-flower-embroidered-pista-green-top-and-flare-pant"}, {"n": "Multicolour Heart Embroidered Pista Green One Shoulder Top Flare Pant", "u": "https://pandscompany.com/products/multicolour-heart-embroidered-pista-green-one-shoulder-top-flare-pant", "s": "multicolour-heart-embroidered-pista-green-one-shoulder-top-flare-pant"}, {"n": "Multicolour Ikkat Ghagara Blouse", "u": "https://pandscompany.com/products/multicolour-ikkat-ghagara-blouse", "s": "multicolour-ikkat-ghagara-blouse"}, {"n": "Multicolour Ikkat Printed Kurta Patiala", "u": "https://pandscompany.com/products/multicolour-ikkat-printed-kurta-patiala", "s": "multicolour-ikkat-printed-kurta-patiala"}, {"n": "Multicolour Leaves Applique Sea Green Peplum And Flare Pant", "u": "https://pandscompany.com/products/multicolour-leaves-applique-sea-green-peplum-and-flare-pant", "s": "multicolour-leaves-applique-sea-green-peplum-and-flare-pant"}, {"n": "Multicolour Thread And Faux Mirror Embroidered White Ghaghra And Blouse", "u": "https://pandscompany.com/products/multicolour-thread-and-faux-mirror-embroidered-white-ghaghra-and-blouse", "s": "multicolour-thread-and-faux-mirror-embroidered-white-ghaghra-and-blouse"}, {"n": "Multicolour Thread Embroidered Applique Blue Bib Flare Pant", "u": "https://pandscompany.com/products/multicolour-thread-embroidered-applique-blue-bib-flare-pant", "s": "multicolour-thread-embroidered-applique-blue-bib-flare-pant"}, {"n": "Multicolour Thread Giraffe Embroidered Blue Blouse And Gota Line Ghagara", "u": "https://pandscompany.com/products/multicolour-thread-giraffe-embroidered-blue-blouse-and-gota-line-ghagara-1", "s": "multicolour-thread-giraffe-embroidered-blue-blouse-and-gota-line-ghagara-1"}, {"n": "Multicolour Thread Kaftan With Straight Pant", "u": "https://pandscompany.com/products/multicolour-thread-kaftan-with-straight-pant", "s": "multicolour-thread-kaftan-with-straight-pant"}, {"n": "Mustard Bandhej Jaamna Set For Boys", "u": "https://pandscompany.com/products/mustard-bandhej-jaamna-set-for-boys", "s": "mustard-bandhej-jaamna-set-for-boys"}, {"n": "Mustard Cow Printed Kurta And Dhoti", "u": "https://pandscompany.com/products/mustard-cow-printed-kurta-and-dhoti", "s": "mustard-cow-printed-kurta-and-dhoti"}, {"n": "Mustard Cow Printed Kurta And Patiala", "u": "https://pandscompany.com/products/mustard-cow-printed-kurta-and-patiala", "s": "mustard-cow-printed-kurta-and-patiala"}, {"n": "Mustard Pintuck Detailed Chanderi Kurta And Pant", "u": "https://pandscompany.com/products/mustard-pintuck-detailed-chanderi-kurta-and-pant", "s": "mustard-pintuck-detailed-chanderi-kurta-and-pant"}, {"n": "Mustard Pintuck Detailed Chanderi Kurta And Pyjama", "u": "https://pandscompany.com/products/mustard-pintuck-detailed-chanderi-kurta-and-pyjama", "s": "mustard-pintuck-detailed-chanderi-kurta-and-pyjama"}, {"n": "Mustard Tiger Print Ghagara Blouse", "u": "https://pandscompany.com/products/mustard-tiger-print-ghagara-blouse", "s": "mustard-tiger-print-ghagara-blouse"}, {"n": "Mustard Tiger Print Kurta Pyjama", "u": "https://pandscompany.com/products/mustard-tiger-print-kurta-pyjama", "s": "mustard-tiger-print-kurta-pyjama"}, {"n": "Navy Bandhani Printed Top And Dhoti With Cape Style Jacket", "u": "https://pandscompany.com/products/navy-bandhani-printed-top-and-dhoti-with-cape-style-jacket-1", "s": "navy-bandhani-printed-top-and-dhoti-with-cape-style-jacket-1"}, {"n": "Navy Blue Floral Printed Kurta Patiala", "u": "https://pandscompany.com/products/navy-blue-floral-printed-kurta-patiala", "s": "navy-blue-floral-printed-kurta-patiala"}, {"n": "Navy Blue Printed Gota Top And Pant", "u": "https://pandscompany.com/products/navy-blue-printed-gota-top-and-pant", "s": "navy-blue-printed-gota-top-and-pant"}, {"n": "Navy Blue Printed Gota Top And Pant", "u": "https://pandscompany.com/products/navy-blue-printed-gota-top-and-pant-1", "s": "navy-blue-printed-gota-top-and-pant-1"}, {"n": "New Leaf Printed Kurta And Flare Pant", "u": "https://pandscompany.com/products/new-leaf-printed-kurta-and-flare-pant", "s": "new-leaf-printed-kurta-and-flare-pant"}, {"n": "New Leaf Printed Nehru Jacket Set", "u": "https://pandscompany.com/products/new-leaf-printed-nehru-jacket-set", "s": "new-leaf-printed-nehru-jacket-set"}, {"n": "New Tropical Printed Nehru Jacket Set", "u": "https://pandscompany.com/products/new-tropical-printed-nehru-jacket-set", "s": "new-tropical-printed-nehru-jacket-set"}, {"n": "New Tropical Printed Nehru Jacket Set", "u": "https://pandscompany.com/products/new-tropical-printed-nehru-jacket-set-1", "s": "new-tropical-printed-nehru-jacket-set-1"}, {"n": "New Tropical Printed Nehru Jacket Set", "u": "https://pandscompany.com/products/new-tropical-printed-nehru-jacket-set-2", "s": "new-tropical-printed-nehru-jacket-set-2"}, {"n": "Off White Angrakha Style Kurta And Sharara", "u": "https://pandscompany.com/products/off-white-angrakha-style-kurta-and-sharara", "s": "off-white-angrakha-style-kurta-and-sharara"}, {"n": "Off White Cotton Embroidered Dhoti Set", "u": "https://pandscompany.com/products/off-white-cotton-embroidered-dhoti-set", "s": "off-white-cotton-embroidered-dhoti-set"}, {"n": "Off White Embroidered Top And Silk Tissue Flare Pant", "u": "https://pandscompany.com/products/off-white-embroidered-top-and-silk-tissue-flare-pant-1", "s": "off-white-embroidered-top-and-silk-tissue-flare-pant-1"}, {"n": "Off White Flax Embroidered Kurta Pyjama", "u": "https://pandscompany.com/products/off-white-flax-embroidered-kurta-pyjama", "s": "off-white-flax-embroidered-kurta-pyjama"}, {"n": "Off White Flax Embroidered Kurta Pyjama", "u": "https://pandscompany.com/products/off-white-flax-embroidered-kurta-pyjama-1", "s": "off-white-flax-embroidered-kurta-pyjama-1"}, {"n": "Off White Flax Thread And Mirror Work Kurta And Pant", "u": "https://pandscompany.com/products/off-white-flax-thread-and-mirror-work-kurta-and-pant", "s": "off-white-flax-thread-and-mirror-work-kurta-and-pant"}, {"n": "Off White Floral Printed Dress", "u": "https://pandscompany.com/products/off-white-floral-printed-dress-1", "s": "off-white-floral-printed-dress-1"}, {"n": "Off White Heart Kurta Pyjama", "u": "https://pandscompany.com/products/off-white-heart-kurta-pyjama", "s": "off-white-heart-kurta-pyjama"}, {"n": "Off White Heart Kurta Pyjama", "u": "https://pandscompany.com/products/off-white-heart-kurta-pyjama-1", "s": "off-white-heart-kurta-pyjama-1"}, {"n": "Off White Kurta And Dhoti", "u": "https://pandscompany.com/products/off-white-kurta-and-dhoti-1", "s": "off-white-kurta-and-dhoti-1"}, {"n": "Off White Lakhnavi Top And Flare Pant", "u": "https://pandscompany.com/products/off-white-lakhnavi-top-and-flare-pant-2", "s": "off-white-lakhnavi-top-and-flare-pant-2"}, {"n": "Off White Mirror Embroidered Kurta And Pant", "u": "https://pandscompany.com/products/off-white-mirror-embroidered-kurta-and-pant-1", "s": "off-white-mirror-embroidered-kurta-and-pant-1"}, {"n": "Off White Multicolour Hearts Embroidered Poncho Top And Ghaghra", "u": "https://pandscompany.com/products/off-white-multicolour-hearts-embroidered-poncho-top-and-ghaghra", "s": "off-white-multicolour-hearts-embroidered-poncho-top-and-ghaghra"}, {"n": "Off White Multicolour Hearts Embroidered Poncho Top And Ghaghra", "u": "https://pandscompany.com/products/off-white-multicolour-hearts-embroidered-poncho-top-and-ghaghra-1", "s": "off-white-multicolour-hearts-embroidered-poncho-top-and-ghaghra-1"}, {"n": "Off White Savron Zari Kurta And Pant", "u": "https://pandscompany.com/products/off-white-savron-zari-kurta-and-pant", "s": "off-white-savron-zari-kurta-and-pant"}, {"n": "Off White Zari Embroidered Top With Dhoti Skirt", "u": "https://pandscompany.com/products/off-white-zari-embroidered-top-with-dhoti-skirt", "s": "off-white-zari-embroidered-top-with-dhoti-skirt"}, {"n": "Off White Zari Line Kurta With Red Zari Embroidery And Sharara", "u": "https://pandscompany.com/products/off-white-zari-line-kurta-with-red-zari-embroidery-and-sharara-1", "s": "off-white-zari-line-kurta-with-red-zari-embroidery-and-sharara-1"}, {"n": "Orange Bandhej Cape With Dhoti", "u": "https://pandscompany.com/products/orange-bandhej-cape-with-dhoti", "s": "orange-bandhej-cape-with-dhoti"}, {"n": "Orange Bandhej Zari Embroidered Blouse And Ghaghra", "u": "https://pandscompany.com/products/orange-bandhej-zari-embroidered-blouse-and-ghaghra", "s": "orange-bandhej-zari-embroidered-blouse-and-ghaghra"}, {"n": "Orange Chanderi Printed Gota Lace Detailed Kurta And Pant", "u": "https://pandscompany.com/products/orange-chanderi-printed-gota-lace-detailed-kurta-and-pant", "s": "orange-chanderi-printed-gota-lace-detailed-kurta-and-pant"}, {"n": "Orange Moti Angrakha Dhoti Pant", "u": "https://pandscompany.com/products/orange-moti-angrakha-dhoti-pant", "s": "orange-moti-angrakha-dhoti-pant"}, {"n": "Orange Thread And Moti Embroidered Straight Bandhej Pant", "u": "https://pandscompany.com/products/orange-thread-and-moti-embroidered-straight-bandhej-pant", "s": "orange-thread-and-moti-embroidered-straight-bandhej-pant"}, {"n": "Parsee Thread Embroidered Delicate Blue Ghagara Blouse", "u": "https://pandscompany.com/products/parsee-thread-embroidered-delicate-blue-ghagara-blouse", "s": "parsee-thread-embroidered-delicate-blue-ghagara-blouse"}, {"n": "Parsee Thread Embroidered Delicate Blue Ghaghra", "u": "https://pandscompany.com/products/parsee-thread-embroidered-delicate-blue-ghaghra", "s": "parsee-thread-embroidered-delicate-blue-ghaghra"}, {"n": "Pastel Green Gota And Pearl Embroidered Nehru Jacket Set", "u": "https://pandscompany.com/products/pastel-green-gota-and-pearl-embroidered-nehru-jacket-set", "s": "pastel-green-gota-and-pearl-embroidered-nehru-jacket-set"}, {"n": "Patola Print Pink Kurta With Pyjama", "u": "https://pandscompany.com/products/patola-print-pink-kurta-with-pyjama", "s": "patola-print-pink-kurta-with-pyjama"}, {"n": "Peach Flower Embroidered Kurta And Flare Pant", "u": "https://pandscompany.com/products/peach-flower-embroidered-kurta-and-flare-pant", "s": "peach-flower-embroidered-kurta-and-flare-pant"}, {"n": "Peach Fringed Hem Kurti And Pleated Sharara", "u": "https://pandscompany.com/products/peach-fringed-hem-kurti-and-pleated-sharara", "s": "peach-fringed-hem-kurti-and-pleated-sharara"}, {"n": "Peach Kurta And Pant", "u": "https://pandscompany.com/products/peach-kurta-and-pant", "s": "peach-kurta-and-pant"}, {"n": "Peach Mirror Kurta And Pajama", "u": "https://pandscompany.com/products/peach-mirror-kurta-and-pajama", "s": "peach-mirror-kurta-and-pajama"}, {"n": "Peacock Embroidered Angarkha Kurta With Shibori Dhoti", "u": "https://pandscompany.com/products/peacock-embroidered-angarkha-kurta-with-shibori-dhoti", "s": "peacock-embroidered-angarkha-kurta-with-shibori-dhoti"}, {"n": "Peacock Embroidered Top With Shibori Lehenga", "u": "https://pandscompany.com/products/peacock-embroidered-top-with-shibori-lehenga", "s": "peacock-embroidered-top-with-shibori-lehenga"}, {"n": "Pearl Embellished Emerald Green Cape Set", "u": "https://pandscompany.com/products/pearl-embellished-emerald-green-cape-set", "s": "pearl-embellished-emerald-green-cape-set"}, {"n": "Pearl Embroidered Smart Top And Pants", "u": "https://pandscompany.com/products/pearl-embroidered-smart-top-and-pants", "s": "pearl-embroidered-smart-top-and-pants"}, {"n": "Pink And Silver Zari Kurta And Sharara", "u": "https://pandscompany.com/products/pink-and-silver-zari-kurta-and-sharara", "s": "pink-and-silver-zari-kurta-and-sharara"}, {"n": "Pink Bandhani Printed Jacket And Kurta With Pyjama", "u": "https://pandscompany.com/products/pink-bandhani-printed-jacket-and-kurta-with-pyjama", "s": "pink-bandhani-printed-jacket-and-kurta-with-pyjama"}, {"n": "Pink Bandhani Printed Top And Lehenga", "u": "https://pandscompany.com/products/pink-bandhani-printed-top-and-lehenga", "s": "pink-bandhani-printed-top-and-lehenga"}, {"n": "Pink Cow Printed Ghagara", "u": "https://pandscompany.com/products/pink-cow-printed-ghagara", "s": "pink-cow-printed-ghagara"}, {"n": "Pink Embroidered Blouse With Gota Detailing Lehenga", "u": "https://pandscompany.com/products/pink-embroidered-blouse-with-gota-detailing-lehenga", "s": "pink-embroidered-blouse-with-gota-detailing-lehenga"}, {"n": "Pink Faux Mirror Nehru Jacket Set", "u": "https://pandscompany.com/products/pink-faux-mirror-nehru-jacket-set", "s": "pink-faux-mirror-nehru-jacket-set"}, {"n": "Pink Gota Embroidered Ghagara Blouse", "u": "https://pandscompany.com/products/pink-gota-embroidered-ghagara-blouse", "s": "pink-gota-embroidered-ghagara-blouse"}, {"n": "Pink Gota Embroidered Ghaghra Blouse", "u": "https://pandscompany.com/products/pink-gota-embroidered-ghaghra-blouse", "s": "pink-gota-embroidered-ghaghra-blouse"}, {"n": "Pink Gota Top And Lavender Moti Line Ghaghra", "u": "https://pandscompany.com/products/pink-gota-top-and-lavender-moti-line-ghaghra-1", "s": "pink-gota-top-and-lavender-moti-line-ghaghra-1"}, {"n": "Pink Gota Worked Tissue Ghagara Blouse", "u": "https://pandscompany.com/products/pink-gota-worked-tissue-ghagara-blouse", "s": "pink-gota-worked-tissue-ghagara-blouse"}, {"n": "Pink Lakhnavi Poncho Top And Cowl Pants", "u": "https://pandscompany.com/products/pink-lakhnavi-poncho-top-and-cowl-pants-1", "s": "pink-lakhnavi-poncho-top-and-cowl-pants-1"}, {"n": "Pink Linen Girl Set", "u": "https://pandscompany.com/products/pink-linen-girl-set", "s": "pink-linen-girl-set"}, {"n": "Pink Linen Woodpecker Embroidered Shirt", "u": "https://pandscompany.com/products/pink-linen-woodpecker-embroidered-shirt-1", "s": "pink-linen-woodpecker-embroidered-shirt-1"}, {"n": "Pink Patola Elephant Print Ghagara", "u": "https://pandscompany.com/products/pink-patola-elephant-print-ghagara", "s": "pink-patola-elephant-print-ghagara"}, {"n": "Pink Printed Jacket Style Top With Purple And Pink Savron Kali Ghagara", "u": "https://pandscompany.com/products/pink-printed-jacket-style-top-with-purple-and-pink-savron-kali-ghagara", "s": "pink-printed-jacket-style-top-with-purple-and-pink-savron-kali-ghagara"}, {"n": "Pink Raghunath Top Flare Pant With Dupatta", "u": "https://pandscompany.com/products/pink-raghunath-top-flare-pant-with-dupatta", "s": "pink-raghunath-top-flare-pant-with-dupatta"}, {"n": "Pink Rose Printed Peplum Pink Dhoti", "u": "https://pandscompany.com/products/pink-rose-printed-peplum-pink-dhoti", "s": "pink-rose-printed-peplum-pink-dhoti"}, {"n": "Pink Ruffle Top And Leheria Flare Pant", "u": "https://pandscompany.com/products/pink-ruffle-top-and-leheria-flare-pant", "s": "pink-ruffle-top-and-leheria-flare-pant"}, {"n": "Pink Velvet Embroidered Kurta And Flare Pant", "u": "https://pandscompany.com/products/pink-velvet-embroidered-kurta-and-flare-pant", "s": "pink-velvet-embroidered-kurta-and-flare-pant"}, {"n": "Pista Green Bandhej Zari Embroidered Kurta And Pant", "u": "https://pandscompany.com/products/pista-green-bandhej-zari-embroidered-kurta-and-pant", "s": "pista-green-bandhej-zari-embroidered-kurta-and-pant"}, {"n": "Pista Green Floral Jacket Set", "u": "https://pandscompany.com/products/pista-green-floral-jacket-set", "s": "pista-green-floral-jacket-set"}, {"n": "Pista Green Flower Embroidered Kurta And Flare Pant", "u": "https://pandscompany.com/products/pista-green-flower-embroidered-kurta-and-flare-pant", "s": "pista-green-flower-embroidered-kurta-and-flare-pant"}, {"n": "Pista Green Heart Embroidered Tie Kurta And Sharara", "u": "https://pandscompany.com/products/pista-green-heart-embroidered-tie-kurta-and-sharara", "s": "pista-green-heart-embroidered-tie-kurta-and-sharara"}, {"n": "Powder Blue Halter Neck Blouse And Ghagara", "u": "https://pandscompany.com/products/powder-blue-halter-neck-blouse-and-ghagara", "s": "powder-blue-halter-neck-blouse-and-ghagara"}, {"n": "Powder Blue Heart Girls Kurta And Pant", "u": "https://pandscompany.com/products/powder-blue-heart-girls-kurta-and-pant", "s": "powder-blue-heart-girls-kurta-and-pant"}, {"n": "Powder Blue Heart Kurta And Pant", "u": "https://pandscompany.com/products/powder-blue-heart-kurta-and-pant", "s": "powder-blue-heart-kurta-and-pant"}, {"n": "Powder Blue Heavy Embroidered Jacket With Pink Rose Brocade Ghaghra And Blouse", "u": "https://pandscompany.com/products/powder-blue-heavy-embroidered-jacket-with-pink-rose-brocade-ghaghra-and-blouse-1", "s": "powder-blue-heavy-embroidered-jacket-with-pink-rose-brocade-ghaghra-and-blouse-1"}, {"n": "Powder Blue Stone Embroidered Organza Top With Ghaghra", "u": "https://pandscompany.com/products/powder-blue-stone-embroidered-organza-top-with-ghaghra", "s": "powder-blue-stone-embroidered-organza-top-with-ghaghra"}, {"n": "Pretty Pink Leather Lehenga Choli", "u": "https://pandscompany.com/products/pretty-pink-leather-lehenga-choli-1", "s": "pretty-pink-leather-lehenga-choli-1"}, {"n": "Printed Green Top And Ghagara", "u": "https://pandscompany.com/products/printed-green-top-and-ghagara", "s": "printed-green-top-and-ghagara"}, {"n": "Purple Bandhej Peplum And Sharara", "u": "https://pandscompany.com/products/purple-bandhej-peplum-and-sharara-1", "s": "purple-bandhej-peplum-and-sharara-1"}, {"n": "Purple Cord Peplum And Sharara", "u": "https://pandscompany.com/products/purple-cord-peplum-and-sharara-1", "s": "purple-cord-peplum-and-sharara-1"}, {"n": "Purple Fully Embroidered Chanderi Blouse And Ghagara", "u": "https://pandscompany.com/products/purple-fully-embroidered-chanderi-blouse-and-ghagara-1", "s": "purple-fully-embroidered-chanderi-blouse-and-ghagara-1"}, {"n": "Purple Printed Beads Embelished Top With Lace Embelished Flare Pant", "u": "https://pandscompany.com/products/purple-printed-beads-embelished-top-with-lace-embelished-flare-pant", "s": "purple-printed-beads-embelished-top-with-lace-embelished-flare-pant"}, {"n": "Purple Velvet Gota Embroidered Ghagra Blouse", "u": "https://pandscompany.com/products/purple-velvet-gota-embroidered-ghagra-blouse", "s": "purple-velvet-gota-embroidered-ghagra-blouse"}, {"n": "Purple Velvet Zari Top And Moti Velvet Ghagara", "u": "https://pandscompany.com/products/purple-velvet-zari-top-and-moti-velvet-ghagara", "s": "purple-velvet-zari-top-and-moti-velvet-ghagara"}, {"n": "Purple Zari And Thread Embroidered Kurta And Sharara", "u": "https://pandscompany.com/products/purple-zari-and-thread-embroidered-kurta-and-sharara-1", "s": "purple-zari-and-thread-embroidered-kurta-and-sharara-1"}, {"n": "Purple Zari Embroidered Kurta And Sharara", "u": "https://pandscompany.com/products/purple-zari-embroidered-kurta-and-sharara", "s": "purple-zari-embroidered-kurta-and-sharara"}, {"n": "Red Abhla Work And Multi Colour Threadwork Top With Lehenga", "u": "https://pandscompany.com/products/red-abhla-work-and-multi-colour-threadwork-top-with-lehenga", "s": "red-abhla-work-and-multi-colour-threadwork-top-with-lehenga"}, {"n": "Red Bandhej Kurta And Patiala", "u": "https://pandscompany.com/products/red-bandhej-kurta-and-patiala", "s": "red-bandhej-kurta-and-patiala"}, {"n": "Red Bandhej Printed Chanderi Ghagara Blouse", "u": "https://pandscompany.com/products/red-bandhej-printed-chanderi-ghagara-blouse", "s": "red-bandhej-printed-chanderi-ghagara-blouse"}, {"n": "Red Bandhej Printed Chanderi Ghagara Blouse", "u": "https://pandscompany.com/products/red-bandhej-printed-chanderi-ghagara-blouse-1", "s": "red-bandhej-printed-chanderi-ghagara-blouse-1"}, {"n": "Red Bandhej Ruffle Top And Pant", "u": "https://pandscompany.com/products/red-bandhej-ruffle-top-and-pant", "s": "red-bandhej-ruffle-top-and-pant"}, {"n": "Red Bandhej Ruffle Top And Thread Embroidered Ghagara", "u": "https://pandscompany.com/products/red-bandhej-ruffle-top-and-thread-embroidered-ghagara", "s": "red-bandhej-ruffle-top-and-thread-embroidered-ghagara"}, {"n": "Red Chanderi Floral Printed Gota Embroidered Kurta And Flare Pant", "u": "https://pandscompany.com/products/red-chanderi-floral-printed-gota-embroidered-kurta-and-flare-pant", "s": "red-chanderi-floral-printed-gota-embroidered-kurta-and-flare-pant"}, {"n": "Red Chanderi Floral Printed Kurta And Pant", "u": "https://pandscompany.com/products/red-chanderi-floral-printed-kurta-and-pant", "s": "red-chanderi-floral-printed-kurta-and-pant"}, {"n": "Red Chanderi Printed Gota Lace Embroidered Blouse And Sharara", "u": "https://pandscompany.com/products/red-chanderi-printed-gota-lace-embroidered-blouse-and-sharara-1", "s": "red-chanderi-printed-gota-lace-embroidered-blouse-and-sharara-1"}, {"n": "Red Chanderi Printed Gota Lace Embroidered Blouse And Sharara", "u": "https://pandscompany.com/products/red-chanderi-printed-gota-lace-embroidered-blouse-and-sharara-2", "s": "red-chanderi-printed-gota-lace-embroidered-blouse-and-sharara-2"}, {"n": "Red Mirror Kurta With Off White Pajama", "u": "https://pandscompany.com/products/red-mirror-kurta-with-off-white-pajama", "s": "red-mirror-kurta-with-off-white-pajama"}, {"n": "Red Pintuck Detailed Kurta And Pant", "u": "https://pandscompany.com/products/red-pintuck-detailed-kurta-and-pant", "s": "red-pintuck-detailed-kurta-and-pant"}, {"n": "Red Pintuck Detailing Top With Multi Colour Floral And Peacock Embroidered White Lehenga", "u": "https://pandscompany.com/products/red-pintuck-detailing-top-with-multi-colour-floral-and-peacock-embroidered-white-lehenga", "s": "red-pintuck-detailing-top-with-multi-colour-floral-and-peacock-embroidered-white-lehenga"}, {"n": "Royal Blue Beads Top With Net Layered Skirt", "u": "https://pandscompany.com/products/royal-blue-beads-top-with-net-layered-skirt", "s": "royal-blue-beads-top-with-net-layered-skirt"}, {"n": "Royal Blue Ghaghra With Beautiful Cord Embroidery", "u": "https://pandscompany.com/products/royal-blue-ghaghra-with-beautiful-cord-embroidery", "s": "royal-blue-ghaghra-with-beautiful-cord-embroidery"}, {"n": "Royal Blue Hearts Poncho Style Top And Flare Pant", "u": "https://pandscompany.com/products/royal-blue-hearts-poncho-style-top-and-flare-pant", "s": "royal-blue-hearts-poncho-style-top-and-flare-pant"}, {"n": "Ruffle Neckline Red Top And Lehenga", "u": "https://pandscompany.com/products/ruffle-neckline-red-top-and-lehenga", "s": "ruffle-neckline-red-top-and-lehenga"}, {"n": "Sea Green Anarkali With Jacket", "u": "https://pandscompany.com/products/sea-green-anarkali-with-jacket", "s": "sea-green-anarkali-with-jacket"}, {"n": "Sea Green Buta Kurta With Lime Green Flare Pant", "u": "https://pandscompany.com/products/sea-green-buta-kurta-with-lime-green-flare-pant", "s": "sea-green-buta-kurta-with-lime-green-flare-pant"}, {"n": "Seagreen Pink Kali Tissue Ghagara Zari Embroidered Top", "u": "https://pandscompany.com/products/seagreen-pink-kali-tissue-ghagara-zari-embroidered-top", "s": "seagreen-pink-kali-tissue-ghagara-zari-embroidered-top"}, {"n": "Seagreen Zari Sequince Embroidered Ghagara And Blouse With Dupatta", "u": "https://pandscompany.com/products/seagreen-zari-sequince-embroidered-ghagara-and-blouse-with-dupatta", "s": "seagreen-zari-sequince-embroidered-ghagara-and-blouse-with-dupatta"}, {"n": "Sequins And Flower Embroidered Kurta Pajama Set", "u": "https://pandscompany.com/products/sequins-and-flower-embroidered-kurta-pajama-set", "s": "sequins-and-flower-embroidered-kurta-pajama-set"}, {"n": "Sky Blue Embroidered Kurta And Pant", "u": "https://pandscompany.com/products/sky-blue-embroidered-kurta-and-pant", "s": "sky-blue-embroidered-kurta-and-pant"}, {"n": "Sky Blue Raghunath Top Flare Pant With Dupatta", "u": "https://pandscompany.com/products/sky-blue-raghunath-top-flare-pant-with-dupatta", "s": "sky-blue-raghunath-top-flare-pant-with-dupatta"}, {"n": "Stylish Corsette Style Backopen Mint Green Leater Top And Kalistyles Pants", "u": "https://pandscompany.com/products/stylish-corsette-style-backopen-mint-green-leater-top-and-kalistyles-pants", "s": "stylish-corsette-style-backopen-mint-green-leater-top-and-kalistyles-pants"}, {"n": "Thread And Mirror Embroidered Lime Green Shiboree Kurta And Pant", "u": "https://pandscompany.com/products/thread-and-mirror-embroidered-lime-green-shiboree-kurta-and-pant", "s": "thread-and-mirror-embroidered-lime-green-shiboree-kurta-and-pant"}, {"n": "Thread And Mirror Embroidered Lime Green Shiboree Kurta And Pant", "u": "https://pandscompany.com/products/thread-and-mirror-embroidered-lime-green-shiboree-kurta-and-pant-1", "s": "thread-and-mirror-embroidered-lime-green-shiboree-kurta-and-pant-1"}, {"n": "Thread And Mirror Embroidered Mint Green Tissue Kurta And Sharara", "u": "https://pandscompany.com/products/thread-and-mirror-embroidered-mint-green-tissue-kurta-and-sharara", "s": "thread-and-mirror-embroidered-mint-green-tissue-kurta-and-sharara"}, {"n": "Thread And Zari Embroidered Lime Green Top And Flare Pant", "u": "https://pandscompany.com/products/thread-and-zari-embroidered-lime-green-top-and-flare-pant-1", "s": "thread-and-zari-embroidered-lime-green-top-and-flare-pant-1"}, {"n": "Thread Embroidered Pink Top And Pleated Lehenga", "u": "https://pandscompany.com/products/thread-embroidered-pink-top-and-pleated-lehenga-1", "s": "thread-embroidered-pink-top-and-pleated-lehenga-1"}, {"n": "Thread Embroidered Red Top With Green Chanderi Printed Ghagara", "u": "https://pandscompany.com/products/thread-embroidered-red-top-with-green-chanderi-printed-ghagara", "s": "thread-embroidered-red-top-with-green-chanderi-printed-ghagara"}, {"n": "Thread Flower Embroidered Teal Green Ghagara Blouse", "u": "https://pandscompany.com/products/thread-flower-embroidered-teal-green-ghagara-blouse-1", "s": "thread-flower-embroidered-teal-green-ghagara-blouse-1"}, {"n": "Thread Worked Pista Green Side Open Kurta And Pant", "u": "https://pandscompany.com/products/thread-worked-pista-green-side-open-kurta-and-pant", "s": "thread-worked-pista-green-side-open-kurta-and-pant"}, {"n": "Tropical Print Cowl Kurta And Pyjama", "u": "https://pandscompany.com/products/tropical-print-cowl-kurta-and-pyjama", "s": "tropical-print-cowl-kurta-and-pyjama"}, {"n": "Tropical Print Cowl Kurta And Pyjama", "u": "https://pandscompany.com/products/tropical-print-cowl-kurta-and-pyjama-1", "s": "tropical-print-cowl-kurta-and-pyjama-1"}, {"n": "Turquoise Zari And Thread Embroidered Top And Sequins Scattered Flare Pant", "u": "https://pandscompany.com/products/turquoise-zari-and-thread-embroidered-top-and-sequins-scattered-flare-pant", "s": "turquoise-zari-and-thread-embroidered-top-and-sequins-scattered-flare-pant"}, {"n": "Velvet Top With Brocade Kali Ghaghra", "u": "https://pandscompany.com/products/velvet-top-with-brocade-kali-ghaghra", "s": "velvet-top-with-brocade-kali-ghaghra"}, {"n": "White Anarkali Zari Embroidered And Straight Pant", "u": "https://pandscompany.com/products/white-anarkali-zari-embroidered-and-straight-pant", "s": "white-anarkali-zari-embroidered-and-straight-pant"}, {"n": "White Beads Top Net Layer Skirt", "u": "https://pandscompany.com/products/white-beads-top-net-layer-skirt", "s": "white-beads-top-net-layer-skirt"}, {"n": "White Heart Ghagara And Top", "u": "https://pandscompany.com/products/white-heart-ghagara-and-top", "s": "white-heart-ghagara-and-top"}, {"n": "Yellow Applique Blouse With Off White Ghaghra", "u": "https://pandscompany.com/products/yellow-applique-blouse-with-off-white-ghaghra", "s": "yellow-applique-blouse-with-off-white-ghaghra"}, {"n": "Yellow Bandhej Ghagara Blouse", "u": "https://pandscompany.com/products/yellow-bandhej-ghagara-blouse", "s": "yellow-bandhej-ghagara-blouse"}, {"n": "Yellow Bandhej Ruffle Top And Thread Embroidered Ghagara", "u": "https://pandscompany.com/products/yellow-bandhej-ruffle-top-and-thread-embroidered-ghagara", "s": "yellow-bandhej-ruffle-top-and-thread-embroidered-ghagara"}, {"n": "Yellow Bandhej Ruffle Top And Thread Embroidered Ghagara", "u": "https://pandscompany.com/products/yellow-bandhej-ruffle-top-and-thread-embroidered-ghagara-1", "s": "yellow-bandhej-ruffle-top-and-thread-embroidered-ghagara-1"}, {"n": "Yellow Chanderi Thread Work Kurta And Pant", "u": "https://pandscompany.com/products/yellow-chanderi-thread-work-kurta-and-pant", "s": "yellow-chanderi-thread-work-kurta-and-pant"}, {"n": "Yellow Chanderi Thread Work Kurta And Pant", "u": "https://pandscompany.com/products/yellow-chanderi-thread-work-kurta-and-pant-1", "s": "yellow-chanderi-thread-work-kurta-and-pant-1"}, {"n": "Yellow Coconut Top Pant", "u": "https://pandscompany.com/products/yellow-coconut-top-pant", "s": "yellow-coconut-top-pant"}, {"n": "Yellow Faux Mirror Nehru Jacket Set", "u": "https://pandscompany.com/products/yellow-faux-mirror-nehru-jacket-set", "s": "yellow-faux-mirror-nehru-jacket-set"}, {"n": "Yellow Heavy Embroidered Jacket With Pista Green Brocade Gh Bl", "u": "https://pandscompany.com/products/yellow-heavy-embroidered-jacket-with-pista-green-brocade-gh-bl", "s": "yellow-heavy-embroidered-jacket-with-pista-green-brocade-gh-bl"}, {"n": "Yellow Kurta With Attached Thread Work Jacket And Pyjama", "u": "https://pandscompany.com/products/yellow-kurta-with-attached-thread-work-jacket-and-pyjama-1", "s": "yellow-kurta-with-attached-thread-work-jacket-and-pyjama-1"}, {"n": "Yellow Linen Rocket Embroidered Kurta And Pant", "u": "https://pandscompany.com/products/yellow-linen-rocket-embroidered-kurta-and-pant-1", "s": "yellow-linen-rocket-embroidered-kurta-and-pant-1"}, {"n": "Yellow Mirror Ghagra Blouse", "u": "https://pandscompany.com/products/yellow-mirror-ghagra-blouse", "s": "yellow-mirror-ghagra-blouse"}, {"n": "Yellow Mirror Kurta Sharara", "u": "https://pandscompany.com/products/yellow-mirror-kurta-sharara", "s": "yellow-mirror-kurta-sharara"}, {"n": "Yellow Princess Dress", "u": "https://pandscompany.com/products/yellow-princess-dress-1", "s": "yellow-princess-dress-1"}, {"n": "Yellow Ruffle Top And Printed Ghagra", "u": "https://pandscompany.com/products/yellow-ruffle-top-and-printed-ghagra", "s": "yellow-ruffle-top-and-printed-ghagra"}, {"n": "Yellow Silk Tissue Jacket Kurta Set", "u": "https://pandscompany.com/products/yellow-silk-tissue-jacket-kurta-set", "s": "yellow-silk-tissue-jacket-kurta-set"}, {"n": "Yellow Thread And Moti Embroidered Green Kali Ghaghra", "u": "https://pandscompany.com/products/yellow-thread-and-moti-embroidered-green-kali-ghaghra", "s": "yellow-thread-and-moti-embroidered-green-kali-ghaghra"}, {"n": "Yellow Thread Siquence Embroidered Peplum Sharara With Dupatta", "u": "https://pandscompany.com/products/yellow-thread-siquence-embroidered-peplum-sharara-with-dupatta", "s": "yellow-thread-siquence-embroidered-peplum-sharara-with-dupatta"}, {"n": "Yellow Tie Dye Girls Kurta And Sharara With Dupatta", "u": "https://pandscompany.com/products/yellow-tie-dye-girls-kurta-and-sharara-with-dupatta", "s": "yellow-tie-dye-girls-kurta-and-sharara-with-dupatta"}, {"n": "Yellow Tie Dye Kurta And Patiala", "u": "https://pandscompany.com/products/yellow-tie-dye-kurta-and-patiala", "s": "yellow-tie-dye-kurta-and-patiala"}, {"n": "Zari And Sequin Work Elegant Red Top With Lotus Brocade Printed Lehenga", "u": "https://pandscompany.com/products/zari-and-sequin-work-elegant-red-top-with-lotus-brocade-printed-lehenga-1", "s": "zari-and-sequin-work-elegant-red-top-with-lotus-brocade-printed-lehenga-1"}, {"n": "Zari And Thread Embroidered Dust Pink Chanderi Peplum And Flare Pant", "u": "https://pandscompany.com/products/zari-and-thread-embroidered-dust-pink-chanderi-peplum-and-flare-pant-1", "s": "zari-and-thread-embroidered-dust-pink-chanderi-peplum-and-flare-pant-1"}, {"n": "Zari Embroidered Black Jacket Style Top And Flare Pant", "u": "https://pandscompany.com/products/zari-embroidered-black-jacket-style-top-and-flare-pant-1", "s": "zari-embroidered-black-jacket-style-top-and-flare-pant-1"}, {"n": "Zari Embroidered Blue Rose Printed Jumpsuit", "u": "https://pandscompany.com/products/zari-embroidered-blue-rose-printed-jumpsuit", "s": "zari-embroidered-blue-rose-printed-jumpsuit"}, {"n": "Zari Thread Embroidered Jacket With Navy Blue Kurta And Pyjama", "u": "https://pandscompany.com/products/zari-thread-embroidered-jacket-with-navy-blue-kurta-and-pyjama", "s": "zari-thread-embroidered-jacket-with-navy-blue-kurta-and-pyjama"}, {"n": "Zari Thread Embroidered Top With Sequin Work Lehenga", "u": "https://pandscompany.com/products/zari-thread-embroidered-top-with-sequin-work-lehenga", "s": "zari-thread-embroidered-top-with-sequin-work-lehenga"}];
+
+/*
+PASTE REST OF PRODUCTS HERE
+*/
+
+
+/*
+========================================================
+ELEMENTS
+========================================================
+*/
+
+const msgs = document.getElementById('msgs');
+const ui = document.getElementById('ui');
+const sb = document.getElementById('sb');
+
+
+
+/*
+========================================================
+ADD MESSAGE
+========================================================
+*/
+
+function addMsg(content,type='b'){
+
+  const wrap = document.createElement('div');
+
+  wrap.className = `msg ${type}`;
+
+  const bubble = document.createElement('div');
+
+  bubble.className = 'bubble';
+
+  bubble.innerHTML = content;
+
+  wrap.appendChild(bubble);
+
+  msgs.appendChild(wrap);
+
+  msgs.scrollTop = msgs.scrollHeight;
+
+}
+
+
+
+/*
+========================================================
+SEARCH PRODUCTS
+========================================================
+*/
+
+function findProducts(query){
+
+  query = query.toLowerCase().trim();
+
+  const ignored = [
+    'show',
+    'me',
+    'for',
+    'girls',
+    'girl',
+    'kids',
+    'kid',
+    'please',
+    'want',
+    'need',
+    'with',
+    'and',
+    'some',
+    'give',
+    'can',
+    'you'
+  ];
+
+
+
+  const words = query
+    .replace(/[^\w\s]/g,'')
+    .split(/\s+/)
+    .filter(word =>
+      word &&
+      !ignored.includes(word)
+    );
+
+
+
+  if(words.length === 0){
+
+    return PRODUCTS.slice(0,5);
+
+  }
+
+
+
+  const results = PRODUCTS.map(product => {
+
+    const name = product.n.toLowerCase();
+
+    let score = 0;
+
+
+
+    words.forEach(word => {
+
+      if(name.includes(word)){
+
+        score += 2;
+
+      }
+
+
+
+      const synonymMap = {
+
+        lehenga:['lehenga','ghagra','ghaghra'],
+        ghagra:['lehenga','ghagra','ghaghra'],
+        ghaghra:['lehenga','ghagra','ghaghra'],
+
+        yellow:['yellow','mustard','golden'],
+        green:['green','mint','lime'],
+        pink:['pink','fuchsia','hot pink'],
+        purple:['purple','lavender'],
+        blue:['blue','navy'],
+
+        mirror:['mirror'],
+        floral:['floral','flower'],
+        tiger:['tiger'],
+        sharara:['sharara'],
+        kurta:['kurta']
+
+      };
+
+
+
+      const synonyms = synonymMap[word];
+
+
+
+      if(synonyms){
+
+        synonyms.forEach(s => {
+
+          if(name.includes(s)){
+
+            score += 1;
+
+          }
+
+        });
+
+      }
+
+    });
+
+
+
+    return {
+      ...product,
+      score
+    };
+
+  });
+
+
+
+  return results
+    .filter(p => p.score > 0)
+    .sort((a,b) => b.score - a.score)
+    .slice(0,5);
+
+}
+
+
+
+/*
+========================================================
+RENDER PRODUCTS
+========================================================
+*/
+
+function renderProducts(products){
+
+  if(!products.length){
+
+    return `
+
+      Sorry 😭<br><br>
+
+      Couldn't find matching products.
+
+    `;
+  }
+
+
+
+  return `
+
+    <div>
+
+      <p>
+        Here are a few options you may like:
+      </p>
+
+      <ul>
+
+        ${products.map(product => `
+
+          <li>
+
+            <a
+              href="${product.u}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+
+              ${product.n}
+
+            </a>
+
+          </li>
+
+        `).join('')}
+
+      </ul>
+
+    </div>
+
+  `;
+}
+
+
+
+/*
+========================================================
+BOT REPLY
+========================================================
+*/
+
+async function botReply(text){
+
+  const q = text.toLowerCase().trim();
+
+
+
+  const productKeywords = [
+
+    'lehenga',
+    'ghagra',
+    'ghaghra',
+    'kurta',
+    'sharara',
+    'dress',
+    'pant',
+    'dupatta',
+    'jacket',
+    'sherwani',
+
+    'yellow',
+    'pink',
+    'green',
+    'blue',
+    'lavender',
+    'mint',
+    'black',
+    'white',
+
+    'mirror',
+    'floral',
+    'tiger',
+    'embroidered'
+
+  ];
+
+
+
+  const isProductQuery = productKeywords.some(
+    keyword => q.includes(keyword)
+  );
+
+
+
+  /*
+  ========================================================
+  PRODUCT SEARCH
+  ========================================================
+  */
+
+  if(isProductQuery){
+
+    const products = findProducts(q);
+
+
+
+    if(
+      !products.length ||
+      products[0].score <= 0
+    ){
+
+      addMsg(`
+
+        Sorry 😭<br><br>
+
+        Couldn't find matching products.
+
+      `,'b');
+
+      return;
+
+    }
+
+
+
+    addMsg(
+      renderProducts(products),
+      'b'
+    );
+
+    return;
+
+  }
+
+
+
+  /*
+  ========================================================
+  AI CHAT
+  ========================================================
+  */
+
+  try{
+
+    const res = await fetch(
+
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${KEY}`,
+
+      {
+        method:'POST',
+
+        headers:{
+          'Content-Type':'application/json'
+        },
+
+        body:JSON.stringify({
+
+          contents:[{
+
+            parts:[{
+
+              text:`
+
+You are the P&S Company Assistant.
+
+You help users with:
+- greetings
+- delivery questions
+- sizing help
+- customer support
+
+Keep replies:
+- short
+- warm
+- friendly
+- under 2 sentences
+
+DO NOT hallucinate products.
+DO NOT generate fake links.
+
+User:
+${text}
+
+              `
+
+            }]
+
+          }]
+
+        })
+
+      }
+
+    );
+
+
+
+    const data = await res.json();
+
+
+
+    const reply =
+
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+
+      "Hello 👋 How can I help you today?";
+
+
+
+    addMsg(reply,'b');
+
+  }
+
+  catch(err){
+
+    addMsg(
+
+      "Hello 👋 How can I help you today?",
+
+      'b'
+
+    );
+
+  }
+
+}
+
+
+
+/*
+========================================================
+SEND MESSAGE
+========================================================
+*/
+
+function sendMessage(){
+
+  const text = ui.value.trim();
+
+  if(!text) return;
+
+
+
+  addMsg(text,'u');
+
+  ui.value = '';
+
+
+
+  setTimeout(() => {
+
+    botReply(text);
+
+  },300);
+
+}
+
+
+
+/*
+========================================================
+EVENTS
+========================================================
+*/
+
+sb.addEventListener('click',sendMessage);
+
+ui.addEventListener('keypress',e => {
+
+  if(e.key === 'Enter' && !e.shiftKey){
+
+    e.preventDefault();
+
+    sendMessage();
+
+  }
+
+});
+
+
+
+/*
+========================================================
+WELCOME
+========================================================
+*/
+
+addMsg(`
+
+  Hello 👋<br><br>
+
+  Ask me things like:
+
+  <div class="chips">
+
+    <div class="chip">
+      yellow lehenga
+    </div>
+
+    <div class="chip">
+      mint sharara
+    </div>
+
+    <div class="chip">
+      mirror work kurta
+    </div>
+
+    <div class="chip">
+      tiger print
+    </div>
+
+  </div>
+
+`,'b');
+
+</script>
+
+</body>
+</html>
